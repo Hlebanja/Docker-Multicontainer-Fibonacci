@@ -1,0 +1,43 @@
+version: '3'
+services: 
+    postgres:
+        image: 'postgres:latest'
+        environment:
+            - POSTGRES_PASSWORD=postgres_password
+    redis:
+        image: 'redis:latest'
+    server:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./server
+        volumes:
+            - /app/node_modules
+            - ./server:/app #except for the node_modules, every time an attempt to access /app is made, it will access ./server
+        environment:
+            #REDIS_HOST=redis points the redis service as the REDIS_HOST.  
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379 #standard port according to documentation
+            - PGUSER=postgres
+            - PGHOST=postgres
+            - PGDATABASE=postgres
+            - PGPASSWORD=postgres_password
+            - PGPORT=5432 #according to Postgres documentation
+    client:
+        stdin_open: true
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./client
+        volumes:
+            - /app/node_modules #node_modules, after built, will not be overwritten by node_modules in the original dir. 
+            - ./client:/app #everything else inside /app should mirror /client
+    worker:
+        build:
+            dockerfile: Dockerfile.dev
+            context: ./worker
+        volumes:
+            - /app/node_modules
+            - ./worker:/app #mapping
+        environment:
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+
