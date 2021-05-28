@@ -11,7 +11,8 @@ services:
         image: 'redis:latest'
     nginx:
         restart: always #makes sure nginx is always up and running
-        build: #it is necessary to specify the build whenever you have a custom version of what you are trying to run
+        #it is necessary to specify the build whenever you have a custom version of what you are trying to run
+        build: 
             dockerfile: Dockerfile.dev
             context: ./nginx
         ports: 
